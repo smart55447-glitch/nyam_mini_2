@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>냠냠 — 미니멀</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --or:#FF6B2B;--or2:#FF8C50;--or-dim:#FFF0EA;
+  --gr:#16A34A;--gr-bg:#DCFCE7;--gr-bd:#BBF7D0;
+  --yw:#D97706;--yw-bg:#FEF3C7;--yw-bd:#FDE68A;
+  --rd:#DC2626;--rd-bg:#FEE2E2;--rd-bd:#FECACA;
+  --pu:#7C3AED;--pu-bg:#EDE9FE;--pu-bd:#DDD6FE;
+  --bg:#F4F0EB;--card:#FFFFFF;--card2:#F8F5F1;
+  --line:#E8E2DC;--line2:#EDE8E3;
+  --t1:#111111;--t2:#555555;--t3:#999999;
+}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Pretendard',sans-serif;-webkit-font-smoothing:antialiased;}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:390px;margin:0 auto;background:var(--bg);position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;}
+
+/* ── 스플래시 ── */
+#splash{position:absolute;inset:0;background:var(--or);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s,transform .5s;}
+#splash.hide{opacity:0;transform:scale(1.04);pointer-events:none;}
+.sp-icon{font-size:3.2rem;margin-bottom:16px;}
+.sp-name{font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:-1.5px;margin-bottom:6px;}
+.sp-tag{font-size:.75rem;color:rgba(255,255,255,.75);letter-spacing:2.5px;margin-bottom:32px;}
+.sp-bar{width:80px;height:2px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;}
+.sp-fill{height:100%;background:#fff;border-radius:2px;animation:spFill 2s ease-out forwards;}
+@keyframes spFill{from{width:0}to{width:100%}}
+
+/* ── 헤더 ── */
+.hdr{padding:52px 20px 0;flex-shrink:0;background:var(--bg);}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-mark{width:34px;height:34px;background:var(--or);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.logo-text{font-size:1.18rem;font-weight:900;letter-spacing:-.5px;color:var(--t1);}
+.logo-text b{color:var(--or);}
+.mini-badge{display:inline-block;font-size:.52rem;font-weight:800;color:#fff;background:var(--pu);padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.5px;vertical-align:middle;position:relative;top:-2px;}
+.live-chip{display:inline-flex;align-items:center;gap:5px;font-size:.65rem;font-weight:700;color:var(--gr);background:var(--gr-bg);padding:5px 10px;border-radius:20px;border:1px solid var(--gr-bd);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gr);animation:blink 1.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* 탭 */
+.tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:16px;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:8px 14px;border-radius:22px;font-size:.8rem;font-weight:600;border:1.5px solid var(--line2);background:transparent;color:var(--t3);cursor:pointer;transition:all .2s;font-family:inherit;}
+.tab.on{background:var(--or);border-color:var(--or);color:#fff;}
+.tab-dot{width:7px;height:7px;border-radius:50%;}
+
+/* ── 스크롤 ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:80px;min-height:0;}
+.scroll::-webkit-scrollbar{display:none;}
+.sec-hd{padding:20px 20px 10px;display:flex;align-items:center;justify-content:space-between;}
+.sec-hd h2{font-size:.98rem;font-weight:800;color:var(--t1);}
+.sec-hd span{font-size:.74rem;color:var(--t3);}
+
+/* ── 학식 카드 — 흰 배경 단일 통일 ── */
+.canteen{margin:0 16px 8px;background:var(--card);border-radius:22px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.07);}
+.cc-hero{padding:22px 22px 0;}
+.cc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+.cc-name{font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:4px;}
+.cc-loc{font-size:.7rem;color:var(--t3);line-height:1.6;}
+.chip{font-size:.7rem;font-weight:700;padding:5px 12px;border-radius:20px;flex-shrink:0;}
+.chip-open{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd);}
+.chip-busy{background:var(--yw-bg);color:var(--yw);border:1px solid var(--yw-bd);}
+.chip-closed{background:var(--rd-bg);color:var(--rd);border:1px solid var(--rd-bd);}
+
+/* 혼잡도 한 줄 (전체 대기 숫자 노출 없음) */
+.cong-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.cong-row-left{display:flex;align-items:center;gap:8px;}
+.cong-lbl{font-size:.78rem;color:var(--t2);font-weight:500;}
+.cong-val{font-size:.95rem;font-weight:900;}
+.cong-track{height:8px;background:var(--card2);border-radius:4px;overflow:hidden;}
+.cong-bar{height:100%;border-radius:4px;transition:width 1.2s ease,background 1.2s ease;}
+
+/* 알람 아이콘 버튼 */
+.alarm-icon-btn{display:flex;align-items:center;gap:5px;margin-left:auto;padding:6px 12px;border-radius:20px;border:1.5px solid var(--line);background:transparent;cursor:pointer;font-family:inherit;transition:all .18s;font-size:.95rem;color:var(--t2);}
+.alarm-icon-btn.active{border-color:var(--or);background:var(--or-dim);}
+.alarm-icon-label{font-size:.68rem;font-weight:700;color:var(--t3);}
+.alarm-icon-btn.active .alarm-icon-label{color:var(--or);}
+/* 알람 패널 */
+.alarm-panel{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:12px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--line2);}
+.alarm-panel-lbl{font-size:.72rem;color:var(--t2);font-weight:600;white-space:nowrap;}
+.alarm-chips{display:flex;gap:6px;margin-left:auto;}
+.achip{font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid var(--line);background:transparent;color:var(--t3);cursor:pointer;transition:all .18s;font-family:inherit;}
+.achip.on{border-color:var(--or);color:var(--or);background:var(--or-dim);}
+
+/* 메뉴 리스트 — 메뉴별 대기 숫자가 핵심 */
+.menu-list{border-top:1.5px solid var(--line2);}
+.menu-item{padding:20px 22px;border-bottom:1px solid var(--line2);}
+.menu-item:last-child{border-bottom:none;padding-bottom:24px;}
+.mi-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.mi-bar{width:4px;min-height:60px;border-radius:2px;flex-shrink:0;align-self:stretch;}
+.mi-info{flex:1;min-width:0;}
+.mi-name{font-size:1.02rem;font-weight:800;color:var(--t1);margin-bottom:3px;}
+.mi-desc{font-size:.72rem;color:var(--t3);margin-bottom:4px;}
+.mi-price{font-size:.88rem;font-weight:700;color:var(--or);}
+.mi-right{flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mi-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card2);border-radius:16px;padding:12px 10px;border:1.5px solid var(--line2);min-width:72px;}
+.mi-stat-n{font-size:2.8rem;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;}
+.mi-stat-l{font-size:.62rem;color:var(--t3);margin-top:5px;font-weight:700;letter-spacing:.2px;white-space:nowrap;}
+
+/* ── 카페 카드 ── */
+.cafe-card{margin:0 16px 8px;background:var(--card);border-radius:22px;overflow:hidden;box-shadow:0 1px 8px rgba(0,0,0,.07);}
+.cafe-top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;}
+.cafe-id{display:flex;align-items:center;gap:10px;}
+.cafe-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.cafe-nm{font-size:.93rem;font-weight:800;color:var(--t1);margin-bottom:3px;}
+.cafe-lc{font-size:.7rem;color:var(--t3);}
+.divider{height:1px;background:var(--line2);margin:0 20px;}
+.cafe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px;}
+.cg{background:var(--card2);border-radius:14px;padding:12px 8px;cursor:pointer;transition:all .18s;border:2px solid transparent;text-align:center;}
+.cg:hover{border-color:rgba(124,58,237,.25);background:var(--pu-bg);}
+.cg:active{transform:scale(.95);}
+.cg-em{font-size:1.5rem;display:block;margin-bottom:5px;}
+.cg-nm{font-size:.74rem;font-weight:700;color:var(--t1);margin-bottom:2px;}
+.cg-pr{font-size:.65rem;color:var(--or);font-weight:600;}
+.cafe-foot{padding:0 16px 18px;}
+.btn-c{width:100%;padding:15px;border-radius:14px;font-size:.93rem;font-weight:800;border:none;cursor:pointer;font-family:inherit;transition:all .18s;color:#fff;}
+.btn-c:active{transform:scale(.99);}
+
+/* ── 네비 ── */
+.bnav{position:absolute;bottom:0;left:0;right:0;background:rgba(244,240,235,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--line2);display:grid;grid-template-columns:1fr 1fr;z-index:100;padding-bottom:env(safe-area-inset-bottom,0);}
+.nv{display:flex;flex-direction:column;align-items:center;padding:11px 0 10px;gap:4px;cursor:pointer;border:none;background:transparent;font-family:inherit;color:var(--t3);font-size:.66rem;font-weight:600;transition:color .18s;}
+.nv.on{color:var(--or);}
+.nv-i{font-size:1.3rem;line-height:1;}
+
+/* ── 오버레이/시트 ── */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+.overlay.open{opacity:1;pointer-events:all;}
+.sheet{background:var(--card);border-radius:28px 28px 0 0;transform:translateY(100%);transition:transform .36s cubic-bezier(.32,.72,0,1);max-height:92dvh;overflow-y:auto;}
+.sheet::-webkit-scrollbar{display:none;}
+.overlay.open .sheet{transform:translateY(0);}
+.sh-handle{width:36px;height:4px;border-radius:2px;background:var(--line);margin:14px auto 0;}
+.sh-hdr{padding:20px 22px 16px;border-bottom:1px solid var(--line2);}
+.sh-title{font-size:1.18rem;font-weight:800;color:var(--t1);margin-bottom:4px;}
+.sh-sub{font-size:.82rem;color:var(--t2);}
+.sh-body{padding:16px 22px;}
+
+/* 카페 주문 */
+.co-item{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line2);}
+.co-item:last-child{border-bottom:none;}
+.co-l{display:flex;align-items:center;gap:10px;}
+.co-em{font-size:1.4rem;}
+.co-nm{font-size:.92rem;font-weight:700;color:var(--t1);margin-bottom:2px;}
+.co-pr{font-size:.73rem;color:var(--t3);}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.opt-b{padding:4px 11px;border-radius:20px;font-size:.72rem;font-weight:600;border:1.5px solid var(--line);background:transparent;color:var(--t2);cursor:pointer;transition:all .18s;font-family:inherit;}
+.opt-b.on{background:var(--or);border-color:var(--or);color:#fff;}
+.qty-ctrl{display:flex;align-items:center;gap:10px;}
+.qb{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1.5px solid var(--line);cursor:pointer;color:var(--t1);font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.qb:hover{background:var(--or);border-color:var(--or);color:#fff;}
+.qn{font-size:.95rem;font-weight:700;min-width:20px;text-align:center;color:var(--t1);font-variant-numeric:tabular-nums;}
+.order-sum{background:var(--card2);border-radius:14px;padding:14px;margin:0 22px 12px;border:1px solid var(--line2);}
+.os-row{display:flex;justify-content:space-between;font-size:.83rem;color:var(--t2);margin-bottom:7px;}
+.os-row:last-child{margin-bottom:0;font-weight:800;font-size:.96rem;color:var(--t1);}
+.os-div{height:1px;background:var(--line2);margin:8px 0;}
+.sh-cta{padding:0 22px 10px;}
+.cta{width:100%;padding:17px;border-radius:16px;background:var(--or);color:#fff;font-size:1rem;font-weight:800;border:none;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(255,107,43,.25);}
+.cta:hover{background:var(--or2);}
+.cta:disabled{background:var(--line);color:var(--t3);box-shadow:none;cursor:not-allowed;}
+
+/* 완료 시트 */
+.done-wrap{padding:0 22px 12px;}
+.done-em{font-size:3.4rem;text-align:center;display:block;margin:24px 0 10px;}
+.done-h{font-size:1.3rem;font-weight:900;text-align:center;color:var(--t1);margin-bottom:6px;}
+.done-sub{font-size:.84rem;color:var(--t2);text-align:center;line-height:1.7;margin-bottom:22px;}
+.ticket{background:var(--card2);border-radius:20px;padding:20px;margin-bottom:20px;position:relative;border:1px solid var(--line2);}
+.ticket::before,.ticket::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--bg);top:50%;transform:translateY(-50%);border:1px solid var(--line2);}
+.ticket::before{left:-11px;}.ticket::after{right:-11px;}
+.t-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.t-row:last-child{margin-bottom:0;}
+.t-l{font-size:.74rem;color:var(--t3);}
+.t-v{font-size:.9rem;font-weight:700;color:var(--t1);}
+.t-div{border:none;border-top:1.5px dashed var(--line);margin:14px 0;}
+.t-item{background:var(--card);border-radius:10px;padding:10px 14px;margin:6px 0;border:1px solid var(--line2);}
+.t-iname{font-size:.87rem;font-weight:700;color:var(--t1);}
+.t-iopt{font-size:.7rem;color:var(--t3);margin-top:2px;}
+
+/* 주문 현황 카드 */
+.order-card{background:var(--card);border-radius:22px;padding:22px;margin:16px 16px 0;box-shadow:0 1px 8px rgba(0,0,0,.07);}
+.oc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.oc-venue{font-size:1rem;font-weight:800;color:var(--t1);}
+.oc-status{font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:20px;}
+.oc-prep{background:var(--pu-bg);color:var(--pu);border:1px solid var(--pu-bd);}
+.oc-done{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd);}
+.oc-num{font-size:5rem;font-weight:900;text-align:center;line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;}
+.oc-num-l{font-size:.74rem;text-align:center;color:var(--t3);margin-bottom:18px;}
+.oc-items{background:var(--card2);border-radius:14px;padding:12px 16px;border:1px solid var(--line2);margin-bottom:14px;}
+.oc-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line2);}
+.oc-item:last-child{border-bottom:none;}
+.oc-dot{width:7px;height:7px;border-radius:50%;background:var(--pu);flex-shrink:0;}
+.oc-iname{font-size:.83rem;font-weight:600;color:var(--t1);}
+.prog-track{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;margin-bottom:14px;}
+.prog-fill{height:100%;border-radius:3px;transition:width .8s ease;background:linear-gradient(90deg,var(--pu),#A78BFA);}
+.btn-cancel-sm{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:transparent;color:var(--t3);font-size:.83rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .18s;}
+.btn-cancel-sm:hover{border-color:var(--rd);color:var(--rd);}
+
+/* 빈 상태 */
+.empty{text-align:center;padding:72px 24px;color:var(--t3);}
+.empty-ico{font-size:3.2rem;display:block;margin-bottom:14px;}
+.empty-desc{font-size:.9rem;line-height:1.7;}
+
+/* 토스트 */
+.toast{position:absolute;top:100px;left:16px;right:16px;background:#222;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:13px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);z-index:500;transform:translateY(-8px) scale(.97);opacity:0;transition:all .26s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateY(0) scale(1);opacity:1;}
+.t-ico{font-size:1.1rem;flex-shrink:0;}
+.t-txt{font-size:.86rem;font-weight:600;color:#fff;}
+.page{display:none;}.page.on{display:block;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- 스플래시 -->
+<div id="splash">
+  <div class="sp-icon">🍽️</div>
+  <div class="sp-name">냠냠 <span style="font-size:1rem;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:20px;letter-spacing:.5px">mini</span></div>
+  <div class="sp-tag">CAMPUS FOOD</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
+</div>
+
+<!-- 헤더 -->
+<div class="hdr">
+  <div class="hdr-row">
+    <div class="logo"><div class="logo-mark">🍽️</div><div class="logo-text"><b>냠</b>냠<span class="mini-badge">mini</span></div></div>
+    <div class="live-chip"><div class="live-dot"></div>LIVE</div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="filterPlace('all',this)"><div class="tab-dot" style="background:var(--or)"></div>전체</button>
+    <button class="tab" onclick="filterPlace('beopak',this)"><div class="tab-dot" style="background:#3B82F6"></div>법학관 식당</button>
+    <button class="tab" onclick="filterPlace('bukak',this)"><div class="tab-dot" style="background:var(--pu)"></div>북악관 카페</button>
+    <button class="tab" onclick="filterPlace('bonbu',this)"><div class="tab-dot" style="background:var(--gr)"></div>본부관 카페</button>
+  </div>
+</div>
+
+<div class="scroll" id="mainScroll">
+
+  <!-- 홈 -->
+  <div class="page on" id="page-home">
+
+    <!-- 법학관 식당 -->
+    <div id="sec-beopak">
+      <div class="sec-hd"><h2>🍚 법학관 식당</h2><span id="beopakUpd">방금 전</span></div>
+      <div class="canteen">
+        <div class="cc-hero">
+          <div class="cc-top">
+            <div><div class="cc-name">법학관 학생식당</div><div class="cc-loc">법학관 지하 1층 · 월~금 11:00–14:00</div></div>
+            <div class="chip chip-open" id="beopakChip">운영 중</div>
+          </div>
+          <!-- 혼잡도 + 알람 아이콘 -->
+          <div class="cong-row">
+            <div class="cong-row-left">
+              <span class="cong-lbl">혼잡도</span>
+              <span class="cong-val" id="congTxt">—</span>
+            </div>
+            <button class="alarm-icon-btn" id="alarmIconBtn" onclick="toggleAlarmPanel()" title="혼잡도 알람 설정">
+              🔔
+              <span class="alarm-icon-label" id="alarmIconLabel">알람 설정</span>
+            </button>
+          </div>
+          <div class="cong-track" style="margin-bottom:8px"><div class="cong-bar" id="congBar" style="width:0%"></div></div>
+          <!-- 알람 패널 (토글) -->
+          <div class="alarm-panel" id="alarmPanel" style="display:none;">
+            <span class="alarm-panel-lbl">알람 설정</span>
+            <div class="alarm-chips">
+              <button class="achip" id="ac-여유" onclick="setAlarm('여유')">여유</button>
+              <button class="achip" id="ac-보통" onclick="setAlarm('보통')">보통</button>
+              <button class="achip on" id="ac-끄기" onclick="setAlarm('끄기')">끄기</button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-list" id="menuRows"></div>
+      </div>
+    </div>
+
+    <!-- 북악관 카페 -->
+    <div id="sec-bukak">
+      <div class="sec-hd"><h2>☕ 북악관 카페</h2></div>
+      <div class="cafe-card">
+        <div class="cafe-top">
+          <div class="cafe-id"><div class="cafe-ico" style="background:var(--pu-bg)">☕</div><div><div class="cafe-nm">북악관 카페</div><div class="cafe-lc">북악관 1층 · 08:30–18:00</div></div></div>
+          <div class="chip chip-open">운영 중</div>
+        </div>
+        <div class="divider"></div>
+        <div class="cafe-grid" id="bukakGrid"></div>
+        <div class="cafe-foot"><button class="btn-c" style="background:var(--pu);box-shadow:0 4px 16px rgba(124,58,237,.28)" onclick="openCafe('bukak')">모바일 주문하기</button></div>
+      </div>
+    </div>
+
+    <!-- 본부관 카페 -->
+    <div id="sec-bonbu">
+      <div class="sec-hd"><h2>☕ 본부관 카페</h2></div>
+      <div class="cafe-card">
+        <div class="cafe-top">
+          <div class="cafe-id"><div class="cafe-ico" style="background:var(--gr-bg)">☕</div><div><div class="cafe-nm">본부관 카페</div><div class="cafe-lc">본부관 1층 · 09:00–17:00</div></div></div>
+          <div class="chip chip-busy">약간 바쁨</div>
+        </div>
+        <div class="divider"></div>
+        <div class="cafe-grid" id="bonbuGrid"></div>
+        <div class="cafe-foot"><button class="btn-c" style="background:var(--gr);box-shadow:0 4px 16px rgba(22,163,74,.28)" onclick="openCafe('bonbu')">모바일 주문하기</button></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- 주문 현황 -->
+  <div class="page" id="page-order">
+    <div id="orderContent"></div>
+  </div>
+
+</div>
+
+<!-- 네비 -->
+<nav class="bnav">
+  <button class="nv on" id="nav-home" onclick="goHome()"><span class="nv-i">🏠</span>홈</button>
+  <button class="nv" id="nav-order" onclick="goOrder()"><span class="nv-i">☕</span>주문 현황</button>
+</nav>
+
+<!-- 카페 주문 시트 -->
+<div class="overlay" id="cafeOv" onclick="closeOv('cafeOv',event)"><div class="sheet"><div class="sh-handle"></div><div id="cafeContent"></div></div></div>
+<!-- 완료 시트 -->
+<div class="overlay" id="doneOv" onclick="closeOv('doneOv',event)"><div class="sheet"><div class="sh-handle"></div><div id="doneContent"></div></div></div>
+
+<div class="toast" id="toast"><span class="t-ico" id="tIco"></span><span class="t-txt" id="tTxt"></span></div>
+
+<script>
+const MENUS = [
+  {id:1, name:'된장찌개 정식', desc:'된장찌개·제육볶음·밥·반찬3', price:5000, color:'#3B82F6', remain:31, total:80, mWait:8},
+  {id:2, name:'김치찌개 정식', desc:'김치찌개·계란말이·밥·반찬3', price:5000, color:'#EF4444', remain:4,  total:80, mWait:3},
+  {id:3, name:'비빔밥',        desc:'야채비빔밥·된장국·반찬2',    price:4500, color:'#22C55E', remain:0,  total:60, mWait:0},
+  {id:4, name:'돈까스 정식',   desc:'수제돈까스·밥·국·반찬2',    price:6000, color:'#F59E0B', remain:18, total:50, mWait:5},
+];
+const CAFES = [
+  {id:1, em:'☕', name:'아메리카노',    price:2500, opts:{온도:['ICE','HOT'],사이즈:['S','M','L']}},
+  {id:2, em:'🥛', name:'카페라떼',     price:3000, opts:{온도:['ICE','HOT'],사이즈:['S','M','L']}},
+  {id:3, em:'🍫', name:'초코라떼',     price:3500, opts:{온도:['ICE','HOT']}},
+  {id:4, em:'🍓', name:'딸기라떼',     price:4000, opts:{온도:['ICE']}},
+  {id:5, em:'🥐', name:'크루아상',     price:3200, opts:{}},
+  {id:6, em:'🥪', name:'BLT 샌드위치', price:4500, opts:{온도:['따뜻하게','차갑게']}},
+];
+
+let myOrder = null;
+let cart = {}, cartOpts = {}, curCafe = null, alarmT = null;
+
+// ── 초기화 ──
+setTimeout(() => {
+  document.getElementById('splash').classList.add('hide');
+  setTimeout(() => document.getElementById('splash').remove(), 500);
+  boot();
+}, 2200);
+
+function boot() { renderMenus(); renderCafeGrids(); renderOrderPage(); startAuto(); startOrderCd(); }
+function nowStr() { const d = new Date(); return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function mwColor(n) { return n === 0 ? 'var(--gr)' : n <= 5 ? 'var(--yw)' : 'var(--or)'; }
+
+// ── 학식 렌더 ──
+function renderMenus() {
+  const total = MENUS.reduce((s,m) => s + (m.remain > 0 ? m.mWait : 0), 0);
+  document.getElementById('beopakUpd').textContent = '방금 전';
+  updateCong(total);
+
+  document.getElementById('menuRows').innerHTML = MENUS.map(m => {
+    const sold = m.remain === 0;
+    const waitMin = sold ? 0 : Math.max(1, Math.round(m.mWait * 1.4));
+    const wColor = sold ? 'var(--rd)' : mwColor(m.mWait);
+    const statBg = sold ? 'background:var(--rd-bg);border-color:var(--rd-bd)' : '';
+    return `
+<div class="menu-item">
+  <div class="mi-row">
+    <div class="mi-bar" style="background:${m.color}"></div>
+    <div class="mi-info">
+      <div class="mi-name">${m.name}</div>
+      <div class="mi-desc">${m.desc}</div>
+      <div class="mi-price">${m.price.toLocaleString()}원</div>
+    </div>
+    <div class="mi-right">
+      <div class="mi-stat" style="${statBg}">
+        <div class="mi-stat-n" style="color:${wColor}">${sold ? '—' : m.mWait}</div>
+        <div class="mi-stat-l" style="${sold?'color:var(--rd)':''}">${sold ? '품절' : '명 대기'}</div>
+      </div>
+      <div class="mi-stat" style="${statBg}">
+        <div class="mi-stat-n" style="color:${sold?'var(--rd)':'var(--yw)'}">${sold ? '—' : waitMin}</div>
+        <div class="mi-stat-l" style="${sold?'color:var(--rd)':''}">${sold ? '품절' : '분 예상'}</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+  }).join('');
+}
+
+function updateCong(total) {
+  const pct = Math.min(100, Math.round(total / 25 * 100));
+  const lbl = pct < 35 ? '여유' : pct < 65 ? '보통' : '혼잡';
+  const col = pct < 35 ? 'var(--gr)' : pct < 65 ? 'var(--yw)' : 'var(--or)';
+  document.getElementById('congTxt').textContent = lbl;
+  document.getElementById('congTxt').style.color = col;
+  document.getElementById('congBar').style.width = pct + '%';
+  document.getElementById('congBar').style.background = col;
+  if (alarmT === lbl) { toast('🔔', `지금 ${lbl} 상태예요!`); alarmT = null; setAlarm('끄기'); }
+}
+
+function toggleAlarmPanel() {
+  const panel = document.getElementById('alarmPanel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'flex';
+}
+
+function setAlarm(v) {
+  alarmT = v === '끄기' ? null : v;
+  ['여유','보통','끄기'].forEach(x => document.getElementById('ac-'+x)?.classList.toggle('on', x === v));
+  // 아이콘 버튼 상태 업데이트
+  const btn = document.getElementById('alarmIconBtn');
+  const lbl = document.getElementById('alarmIconLabel');
+  if (btn && lbl) {
+    btn.classList.toggle('active', v !== '끄기');
+    lbl.textContent = v === '끄기' ? '알람 설정' : `${v} 알람 켜짐`;
+  }
+  // 선택 후 패널 닫기
+  document.getElementById('alarmPanel').style.display = 'none';
+  toast(v === '끄기' ? '🔕' : '🔔', v === '끄기' ? '알람을 껐어요' : `${v} 되면 알림 드릴게요`);
+}
+
+// ── 카페 그리드 ──
+function renderCafeGrids() {
+  ['bukakGrid','bonbuGrid'].forEach(id => {
+    document.getElementById(id).innerHTML = CAFES.map(m => `
+<div class="cg" onclick="quickAdd('${id.replace('Grid','')}',${m.id})">
+  <span class="cg-em">${m.em}</span>
+  <div class="cg-nm">${m.name}</div>
+  <div class="cg-pr">${m.price.toLocaleString()}원</div>
+</div>`).join('');
+  });
+}
+
+function quickAdd(venue, id) {
+  if (myOrder) { toast('⚠️', '이미 주문 중인 메뉴가 있어요'); return; }
+  curCafe = venue; cart = {}; cartOpts = {};
+  if (!cart[id]) cart[id] = 1; else cart[id]++;
+  const m = CAFES.find(x => x.id === id);
+  if (!cartOpts[id]) { cartOpts[id] = {}; if (m.opts.온도) cartOpts[id].온도 = m.opts.온도[0]; if (m.opts.사이즈) cartOpts[id].사이즈 = m.opts.사이즈[1]||m.opts.사이즈[0]; }
+  openCafeSheet();
+  openOv('cafeOv');
+}
+
+function openCafe(venue) {
+  if (myOrder) { toast('⚠️', '이미 주문 중인 메뉴가 있어요'); return; }
+  curCafe = venue; cart = {}; cartOpts = {};
+  openCafeSheet();
+  openOv('cafeOv');
+}
+
+function chQty(id, d) { cart[id] = (cart[id]||0) + d; if (cart[id] <= 0) delete cart[id]; openCafeSheet(); }
+function cycleOpt(id, type, vals) { if (!cartOpts[id]) cartOpts[id] = {}; const i = vals.indexOf(cartOpts[id][type]); cartOpts[id][type] = vals[(i+1)%vals.length]; openCafeSheet(); }
+
+function openCafeSheet() {
+  const vn = curCafe === 'bukak' ? '북악관 카페' : '본부관 카페';
+  const vc = curCafe === 'bukak' ? 'var(--pu)' : 'var(--gr)';
+  const vcH = curCafe === 'bukak' ? '#7C3AED' : '#16A34A';
+  const total = Object.entries(cart).reduce((s,[id,q]) => s + (CAFES.find(m=>m.id==id)?.price||0)*q, 0);
+  const hasCart = Object.keys(cart).length > 0;
+
+  document.getElementById('cafeContent').innerHTML = `
+<div class="sh-hdr"><div class="sh-title" style="color:${vc}">${vn}</div><div class="sh-sub">담고 주문 → 대기번호 발급 → 준비 완료 알림</div></div>
+<div class="sh-body">
+  ${CAFES.map(m => {
+    const q = cart[m.id]||0, opts = cartOpts[m.id]||{};
+    const optHtml = Object.entries(m.opts).map(([type,vals]) =>
+      `<button class="opt-b${vals.includes(opts[type])?' on':''}" onclick="cycleOpt(${m.id},'${type}',[${vals.map(v=>`'${v}'`)}])">${opts[type]||vals[0]}</button>`
+    ).join('');
+    return `<div class="co-item">
+      <div class="co-l">
+        <div class="co-em">${m.em}</div>
+        <div><div class="co-nm">${m.name}</div><div class="co-pr">${m.price.toLocaleString()}원</div>${optHtml?`<div class="opts">${optHtml}</div>`:''}</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qb" onclick="chQty(${m.id},-1)">−</button>
+        <div class="qn">${q}</div>
+        <button class="qb" onclick="chQty(${m.id},1)">+</button>
+      </div>
+    </div>`;
+  }).join('')}
+</div>
+${hasCart ? `<div class="order-sum">
+  ${Object.entries(cart).map(([id,q])=>{const m=CAFES.find(x=>x.id==id);return`<div class="os-row"><span>${m.name} × ${q}</span><span>${(m.price*q).toLocaleString()}원</span></div>`;}).join('')}
+  <div class="os-div"></div>
+  <div class="os-row"><span>합계</span><span>${total.toLocaleString()}원</span></div>
+</div>`:''}
+<div class="sh-cta">
+  <button class="cta" ${hasCart?'':'disabled'} style="${hasCart?'background:'+vcH:''}" onclick="placeOrder()">
+    ${hasCart ? `주문하기 · ${total.toLocaleString()}원` : '메뉴를 담아주세요'}
+  </button>
+</div>`;
+}
+
+function placeOrder() {
+  if (!Object.keys(cart).length) return;
+  const vn = curCafe === 'bukak' ? '북악관 카페' : '본부관 카페';
+  const vcH = curCafe === 'bukak' ? '#7C3AED' : '#16A34A';
+  const items = Object.entries(cart).map(([id]) => CAFES.find(m => m.id==id));
+  const total = Object.entries(cart).reduce((s,[id,q]) => s+(CAFES.find(m=>m.id==id)?.price||0)*q, 0);
+  const orderNum = 500 + Math.floor(Math.random()*50) + 1;
+  myOrder = { venue:vn, vcH, items, total, at:nowStr(), orderNum, status:'preparing', ready:false };
+
+  document.getElementById('doneContent').innerHTML = `
+<span class="done-em">✅</span>
+<div class="done-h">주문 완료!</div>
+<div class="done-sub">${vn}에 주문됐어요.<br>준비되면 알림 드릴게요!</div>
+<div class="done-wrap">
+  <div class="ticket">
+    <div class="t-row"><span class="t-l">매장</span><span class="t-v">${vn}</span></div>
+    <div class="t-row"><span class="t-l">주문 시간</span><span class="t-v">${myOrder.at}</span></div>
+    <div class="t-row"><span class="t-l">대기번호</span><span class="t-v" style="font-size:1.8rem;font-weight:900;color:${vcH};letter-spacing:2px">${orderNum}번</span></div>
+    <hr class="t-div">
+    ${Object.entries(cart).map(([id,q])=>{const m=CAFES.find(x=>x.id==id);const o=cartOpts[id]||{};return`<div class="t-item"><div class="t-iname">${m.em} ${m.name} × ${q}</div><div class="t-iopt">${Object.values(o).join(' · ')||'기본'}</div></div>`;}).join('')}
+    <hr class="t-div">
+    <div class="t-row"><span class="t-l">합계</span><span class="t-v" style="color:var(--or)">${total.toLocaleString()}원</span></div>
+  </div>
+  <button class="cta" style="background:${vcH}" onclick="closeOv('doneOv');closeOv('cafeOv');renderOrderPage();goOrder()">주문 현황 확인하기</button>
+</div>`;
+  closeOv('cafeOv'); openOv('doneOv');
+  renderOrderPage();
+}
+
+// ── 주문 현황 ──
+function renderOrderPage() {
+  const el = document.getElementById('orderContent');
+  if (!myOrder) {
+    el.innerHTML = `<div class="empty"><span class="empty-ico">☕</span><div class="empty-desc">진행 중인 주문이 없어요<br><span style="font-size:.8rem;color:var(--t3)">홈에서 카페 주문을 해보세요</span></div></div>`;
+    return;
+  }
+  const isReady = myOrder.status === 'ready';
+  const pct = isReady ? 100 : Math.min(93, Math.round(((Date.now() - (myOrder._t||Date.now())) / (myOrder._tot||200000)) * 93));
+  el.innerHTML = `
+<div class="order-card">
+  <div class="oc-header">
+    <div class="oc-venue">${myOrder.venue}</div>
+    <div class="oc-status ${isReady?'oc-done':'oc-prep'}">${isReady?'준비 완료 ✓':'준비 중'}</div>
+  </div>
+  <div class="oc-num" style="color:${isReady?'var(--gr)':myOrder.vcH}">${myOrder.orderNum}</div>
+  <div class="oc-num-l">대기번호</div>
+  <div class="oc-items">
+    ${myOrder.items.map(m=>`<div class="oc-item"><div class="oc-dot" style="background:${isReady?'var(--gr)':myOrder.vcH}"></div><div class="oc-iname">${m.em} ${m.name}</div></div>`).join('')}
+    <div style="border-top:1px solid var(--line2);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
+      <span style="font-size:.72rem;color:var(--t3)">합계</span>
+      <span style="font-size:.88rem;font-weight:800;color:var(--or)">${myOrder.total.toLocaleString()}원</span>
+    </div>
+  </div>
+  ${isReady
+    ? `<div style="background:var(--gr-bg);border:1px solid var(--gr-bd);border-radius:12px;padding:12px 16px;font-size:.83rem;font-weight:700;color:var(--gr);text-align:center;margin-bottom:14px">☕ 지금 픽업하러 오세요!</div>`
+    : `<div class="prog-track"><div class="prog-fill" id="oProg" style="width:${pct}%;background:${myOrder.vcH}"></div></div>`}
+  ${isReady
+    ? `<div style="padding:11px;border-radius:12px;background:var(--card2);border:1px solid var(--line2);color:var(--t3);font-size:.8rem;font-weight:600;text-align:center">준비 완료 후에는 취소할 수 없어요</div>`
+    : `<button type="button" class="btn-cancel-sm" onclick="cancelOrder()">주문 취소 (제작 전 가능)</button>`}
+</div>`;
+}
+
+function cancelOrder() {
+  if (myOrder?.status === 'ready') { toast('❌', '이미 준비 완료된 주문은 취소할 수 없어요'); return; }
+  if (!confirm('주문을 취소할까요?')) return;
+  myOrder = null; renderOrderPage(); goHome();
+  toast('✅', '주문이 취소됐어요');
+}
+
+// ── 자동 업데이트 ──
+function startAuto() {
+  setInterval(() => {
+    MENUS.forEach(m => {
+      if (m.remain > 0 && Math.random() > 0.88) m.remain = Math.max(0, m.remain - 1);
+      if (m.remain > 0) m.mWait = Math.max(0, m.mWait + (Math.random() > 0.5 ? -1 : 1));
+    });
+    renderMenus();
+  }, 4000);
+}
+
+function startOrderCd() {
+  setInterval(() => {
+    if (!myOrder || myOrder.ready) return;
+    if (!myOrder._t) myOrder._t = Date.now();
+    const elapsed = (Date.now() - myOrder._t) / 1000;
+    const tot = myOrder._tot || (myOrder._tot = 180 + Math.floor(Math.random()*60));
+    const pct = Math.min(93, Math.round(elapsed / tot * 93));
+    const p = document.getElementById('oProg');
+    if (p) { p.style.width = pct + '%'; }
+    if (elapsed >= tot && !myOrder.ready) {
+      myOrder.ready = true; myOrder.status = 'ready';
+      toast('☕', `${myOrder.orderNum}번 준비 완료! 픽업하러 오세요 🎉`);
+      renderOrderPage();
+    }
+  }, 1000);
+}
+
+// ── 필터 ──
+function filterPlace(p, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on')); el.classList.add('on');
+  ['beopak','bukak','bonbu'].forEach(s => { const e = document.getElementById('sec-'+s); if (e) e.style.display = (p==='all'||p===s) ? 'block' : 'none'; });
+}
+
+// ── 페이지 전환 ──
+function goHome() {
+  document.getElementById('page-home').className = 'page on';
+  document.getElementById('page-order').className = 'page';
+  document.getElementById('nav-home').classList.add('on');
+  document.getElementById('nav-order').classList.remove('on');
+}
+function goOrder() {
+  renderOrderPage();
+  document.getElementById('page-order').className = 'page on';
+  document.getElementById('page-home').className = 'page';
+  document.getElementById('nav-order').classList.add('on');
+  document.getElementById('nav-home').classList.remove('on');
+}
+
+// ── 오버레이 ──
+function openOv(id) { document.getElementById(id).classList.add('open'); }
+function closeOv(id, e) { if (e && e.target !== document.getElementById(id)) return; document.getElementById(id).classList.remove('open'); }
+
+// ── 토스트 ──
+let tTimer;
+function toast(ico, txt) {
+  document.getElementById('tIco').textContent = ico;
+  document.getElementById('tTxt').textContent = txt;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(tTimer);
+  tTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
